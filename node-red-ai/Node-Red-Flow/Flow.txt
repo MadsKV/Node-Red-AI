@@ -1,0 +1,237 @@
+[
+    {
+        "id": "6a39f98d99969a0b",
+        "type": "inject",
+        "z": "213f19de153b9db4",
+        "name": "Fejkode modtages af systemet",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "F01040 Save parameter settings and carry out a POWER ON",
+        "payloadType": "str",
+        "x": 290,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e778a56c74fd983f",
+        "type": "http request",
+        "z": "213f19de153b9db4",
+        "name": "HTTP request til Cohera AI",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://api.cohere.ai/v1/generate",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "bearer",
+        "senderr": false,
+        "headers": [],
+        "x": 1340,
+        "y": 560,
+        "wires": [
+            [
+                "338a9eb44f8dfaca"
+            ]
+        ]
+    },
+    {
+        "id": "c32e21317de39e1c",
+        "type": "function",
+        "z": "213f19de153b9db4",
+        "name": "Der angives model samt prompt til AI",
+        "func": "msg.payload = {\n    \"model\": \"command-xlarge-nightly\",  // Eller anden passende model\n    \"prompt\": \"How to resolve error code '\" + msg.payload + \"' on a G120 CU250S-2 device? Give me the solutions to the problem in a short step by step manner\",\n    \"max_tokens\": 1000,  // Reducer max_tokens for kortere svar\n    \"temperature\": 0.3  // Juster temperature for mere deterministiske svar\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1050,
+        "y": 460,
+        "wires": [
+            [
+                "e778a56c74fd983f"
+            ]
+        ]
+    },
+    {
+        "id": "8c2c687d34654ef4",
+        "type": "function",
+        "z": "213f19de153b9db4",
+        "name": "Script til at vælge en tilfældig fejlkode",
+        "func": "// Definér en liste af mulige fejlkoder\nvar errorCodes = [\n    \"F01000 - Internal software error\",\n    \"F01001 - FloatingPoint exception\",\n    \"F01002 - Internal software error\",\n    \"F01003 - Acknowledgement delay when accessing the memory\",\n    \"F01005 - File upload/download error\",\n    \"F01010 - Drive type unknown\"\n];\n\n// Vælg en tilfældig fejlkode fra listen\nvar randomIndex = Math.floor(Math.random() * errorCodes.length);\nvar randomErrorCode = errorCodes[randomIndex];\n\n// Gem den tilfældige fejlkode i msg.payload\nmsg.payload = randomErrorCode;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 560,
+        "wires": [
+            [
+                "c32e21317de39e1c"
+            ]
+        ]
+    },
+    {
+        "id": "338a9eb44f8dfaca",
+        "type": "function",
+        "z": "213f19de153b9db4",
+        "name": "Forsøg på at formatere teksten på en overskuelig måde",
+        "func": "// Antag at svaret fra Cohere AI er i msg.payload som en UTF-8 streng\nvar responseText = msg.payload;\n\n// Fjern unødvendig formatering fra Cohere AI's svar, hvis det er nødvendigt\nresponseText = responseText.replace(/\\\\n/g, \"\\n\").replace(/\\\\-/g, \"-\");\n\n// Opret et JSON-objekt med det formaterede svar\nvar jsonResponse = {\n    id: \"unique_id\", // Hvis du har en unik id, kan du indsætte den her\n    generations: [\n        {\n            id: \"generation_id\",\n            text: responseText,\n            finish_reason: \"COMPLETE\" // Eller anden passende afslutningsårsag\n        }\n    ],\n    prompt: \"How to resolve error code '\" + msg.payload.split(\"'\")[1] + \"' on a G120 CU250S-2 device? Give me the solutions to the problem in a short step by step manner\",\n    meta: {\n        api_version: {\n            version: \"1\"\n        },\n        billed_units: {\n            input_tokens: 48, // Antal tokens brugt til input\n            output_tokens: 281 // Antal tokens genereret som output\n        }\n    }\n};\n\n// Konverter JSON-objektet til en streng\nmsg.payload = JSON.stringify(jsonResponse);\n\n// Returner det JSON-formaterede svar\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1710,
+        "y": 460,
+        "wires": [
+            [
+                "65401623.9abfe8"
+            ]
+        ]
+    },
+    {
+        "id": "29c837821fe740ec",
+        "type": "comment",
+        "z": "213f19de153b9db4",
+        "name": "Her ville det så være en automatisk besked modtaget af systemet",
+        "info": "",
+        "x": 730,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "f1f9c357e19c5b00",
+        "type": "http response",
+        "z": "213f19de153b9db4",
+        "name": "HTTP Response",
+        "statusCode": "200",
+        "headers": {},
+        "x": 2340,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "380090f8c90a1527",
+        "type": "http in",
+        "z": "213f19de153b9db4",
+        "name": "",
+        "url": "/errors",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 350,
+        "y": 560,
+        "wires": [
+            [
+                "8c2c687d34654ef4"
+            ]
+        ]
+    },
+    {
+        "id": "f23093a8557f2ffd",
+        "type": "debug",
+        "z": "213f19de153b9db4",
+        "name": "Svar fra Cohera AI modtages",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2400,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "3d59ab35a10b6ad2",
+        "type": "debug",
+        "z": "213f19de153b9db4",
+        "name": "Debug",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1290,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "8ea86f2a9f981d3b",
+        "type": "debug",
+        "z": "213f19de153b9db4",
+        "name": "Debug",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "65401623.9abfe8",
+        "type": "change",
+        "z": "213f19de153b9db4",
+        "name": "Set Headers",
+        "rules": [
+            {
+                "t": "set",
+                "p": "headers",
+                "pt": "msg",
+                "to": "{}",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "headers.content-type",
+                "pt": "msg",
+                "to": "application/json",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 2150,
+        "y": 580,
+        "wires": [
+            [
+                "f1f9c357e19c5b00",
+                "f23093a8557f2ffd"
+            ]
+        ]
+    }
+]

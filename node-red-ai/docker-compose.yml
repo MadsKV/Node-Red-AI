@@ -1,0 +1,12 @@
+version: "3.4"
+services:
+  nginx:
+    hostname: mynginx
+    build: my-nginx
+    ports: 
+      - "80:80"
+  nodered:
+    build: my-node-red
+    hostname: mynodered
+    ports:
+      - "1880:1880"
