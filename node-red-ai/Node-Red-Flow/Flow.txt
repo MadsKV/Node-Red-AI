@@ -1,3 +1,12 @@
+Trin 1: Importer Flow
+
+
+1. Klik på menuen i øverste højre hjørne af Node-RED-editoren (de tre vandrette linjer).
+2. Vælg "Import" fra menuen.
+3. Indsæt følgende JSON i tekstfeltet, der dukker op:
+
+
+
 [
     {
         "id": "6a39f98d99969a0b",
