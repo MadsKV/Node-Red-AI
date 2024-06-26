@@ -1,10 +1,20 @@
 Trin 1: Importer Flow
 
-
 1. Klik på menuen i øverste højre hjørne af Node-RED-editoren (de tre vandrette linjer).
 2. Vælg "Import" fra menuen.
-3. Indsæt følgende JSON i tekstfeltet, der dukker op:
+3. Indsæt følgende JSON i tekstfeltet, der dukker op
+4. Klik på "Import" for at tilføje flowet til din Node-RED workspace.
 
+
+Trin 2: Deploy Flowet
+
+1. Klik på Deploy knappen øverst til højre for at gemme og aktivere dit flow.
+
+
+Trin 3: Konfigurer HTTP Request Node
+1. Åbn HTTP request til Cohera AI node ved at dobbeltklikke på den.
+2. Indsæt din API nøgle i feltet Bearer Token under Authorization sektionen. (t6btlIpdUWl9whBEGjKO4Cy7AyMEPW8d0sb8lYc0)
+3. Klik på Done for at gemme ændringerne.
 
 
 [
